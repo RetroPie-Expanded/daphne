@@ -69,23 +69,12 @@ else ifneq (,$(findstring osx,$(platform)))
 	OSX_LT_MAVERICKS = `(( $(OSXVER) <= 9)) && echo "YES"`
 	fpic += -mmacosx-version-min=10.1
 # Tinkerboard
-else ifeq ($(platform), tinkerboard)
-    EXT ?= so
-    TARGET := $(TARGET_NAME)_libretro.$(EXT)
-    SHARED := -shared -Wl,--version-script=link.T
-    fpic = -fPIC
-    LIBS += -lrt
-    ARM_FLOAT_ABI_HARD = 1
-    FORCE_GLES = 1
-    SINGLE_PREC_FLAGS = 1
-    CPUFLAGS += -DNO_ASM -DARM_ASM -frename-registers -ftree-vectorize
-    CFLAGS += -marm -mfpu=neon-vfpv4 -mtune=cortex-a17 -mfloat-abi=hard $(CPUFLAGS)
-    CXXFLAGS += -marm -mfpu=neon-vfpv4 -mtune=cortex-a17 -mfloat-abi=hard $(CPUFLAGS)
-    ASFLAGS += $(CFLAGS) -c -frename-registers -fno-strict-aliasing -ffast-math -ftree-vectorize
-    PLATFORM_EXT := unix
-    WITH_DYNAREC=arm
-    HAVE_GENERIC_JIT = 0
-
+else ifneq (,$(findstring tinker,$(platform)))
+    MFLAGS += -marm -mfloat-abi=hard -march=armv7-a -mtune=cortex-a17 -mfpu=neon-vfpv4 -mfloat-abi=hard
+    ASFLAGS += -marm -mfloat-abi=hard -march=armv7-a -mtune=cortex-a17 -mfpu=neon-vfpv4 -mfloat-abi=hard
+    CFLAGS += -D GL_GLEXT_PROTOTYPES -D TARGET_BEAGLE -D TARGET_LINUX_ARMELv7 -DARM_HARDFP -fsingle-precision-constant -funsafe-math-optimizations
+    USE_GLES := 1
+    USE_SDL := 1
 else ifeq ($(platform), pi)
    TARGET := $(TARGET_NAME)_libretro.so
    fpic := -fPIC
